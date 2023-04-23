@@ -20,3 +20,5 @@ The other feature of this stack is that you can push many elements to the stack 
 - Function to check the status of the stack
 - Functions to destroy the stack
 - Function to change the size of the stack dynamically
+- Function to empty the stack
+- Function to print the stack

@@ -2,7 +2,7 @@
  * @brief  Stack data structure in C
  * @author Shady nabil
  * @date   April 23, 2023
-*/
+ */
 #ifndef _STACK_H_
 #define _STACK_H_
 
@@ -10,7 +10,7 @@
 #include <stdarg.h>
 #include "Platform_Types.h"
 
-#define ZERO_ELEMENTS -1
+#define ZERO_ELEMENTS 0
 
 typedef enum
 {
@@ -36,6 +36,7 @@ typedef union
 
 typedef enum
 {
+    CHK_FOR_NULL,
     CHK_FOR_PUSH,
     CHK_FOR_POP,
     CHK_FOR_CREATE,
@@ -91,6 +92,18 @@ static void stackCheck(stackCheck_t t, stack_t *stackPtr, uint16 *argsNumPtr, va
  * @param  stackPtr is a pointer the the struct of the stack
  */
 void stackDestroy(stack_t *stackPtr);
+
+/**
+ * @brief  This function empty the data from the stack
+ * @param  stackPtr is a pointer the the struct of the stack
+ */
+void stackEmpty(stack_t *stackPtr);
+
+/**
+ * @brief  This function print the data of the stack
+ * @param  stackPtr is a pointer the the struct of the stack
+ */
+void stackPrint(stack_t *stackPtr);
 
 /**
  * @brief  This function reallocates the size of the stack

@@ -43,6 +43,17 @@ static void stackCheck(stackCheck_t t, stack_t *stackPtr, uint16 *argsNumPtr, va
         }
         switch (t)
         {
+        case CHK_FOR_NULL:
+            if (NULL == stackPtr)
+            {
+                stackStatus.nullStackFlag = TRUE;
+            }
+            else
+            {
+                stackStatus.stackReadyFlag = TRUE;
+            }
+            break;
+
         case CHK_FOR_POP:
             if (ZERO_ELEMENTS == stackPtr->stackTop)
             {
@@ -61,7 +72,7 @@ static void stackCheck(stackCheck_t t, stack_t *stackPtr, uint16 *argsNumPtr, va
             }
             else
             {
-                uint16 temp = stackPtr->stackSize - stackPtr->stackTop - 1; /*Num of elements can be pushed*/
+                uint16 temp = stackPtr->stackSize - stackPtr->stackTop; /*Num of elements can be pushed*/
                 *argsNumPtr = (temp) >= (*argsNumPtr) ? *argsNumPtr : temp;
                 stackStatus.stackReadyFlag = TRUE;
             }
@@ -102,8 +113,8 @@ void stackPush(stack_t *stackPtr, uint16 argsNum, ...)
     {
         for (uint16 i = 0; i < argsNum; i++)
         {
-            (stackPtr->stackTop)++;
             (stackPtr->Stackdata)[stackPtr->stackTop] = va_arg(args, void *);
+            (stackPtr->stackTop)++;
         }
         va_end(args);
     }
@@ -119,8 +130,8 @@ void *stackPop(stack_t *stackPtr)
     stackCheck(CHK_FOR_POP, stackPtr, NULL, NULL);
     if (stackStatus.stackReadyFlag == TRUE)
     {
-        retVal = stackPtr->Stackdata[stackPtr->stackTop];
         (stackPtr->stackTop)--;
+        retVal = stackPtr->Stackdata[stackPtr->stackTop];
     }
     else
     {
@@ -134,7 +145,7 @@ void *stackGetTop(stack_t *stackPtr)
     stackCheck(CHK_FOR_POP, stackPtr, NULL, NULL);
     if (stackStatus.stackReadyFlag == TRUE)
     {
-        return stackPtr->Stackdata[stackPtr->stackTop];
+        return stackPtr->Stackdata[(stackPtr->stackTop) - 1];
     }
     else
     {
@@ -144,7 +155,7 @@ void *stackGetTop(stack_t *stackPtr)
 
 void stackDestroy(stack_t *stackPtr)
 {
-    stackCheck(CHK_FOR_POP, stackPtr, NULL, NULL);
+    stackCheck(CHK_FOR_DESTROY, stackPtr, NULL, NULL);
     if (stackStatus.stackReadyFlag == TRUE)
     {
         for (int i = 0; i <= stackPtr->stackTop; i++)
@@ -162,15 +173,55 @@ void stackDestroy(stack_t *stackPtr)
 
 void stackChangeSize(stack_t *stackPtr, uint32 newSize)
 {
-    stackPtr->stackSize = newSize;
-    stackPtr->Stackdata = realloc(stackPtr->Stackdata, (stackPtr->stackSize) * sizeof(void **));
-    stackCheck(CHK_FOR_REALLOC, stackPtr, NULL, NULL);
+    stackCheck(CHK_FOR_NULL, stackPtr, NULL, NULL);
     if (stackStatus.stackReadyFlag == TRUE)
     {
-        stackStatus.stackReallocFlag = TRUE;
+        if (newSize == stackPtr->stackSize)
+        {
+            /*Do nothing*/
+        }
+        else
+        {
+            if (newSize < stackPtr->stackSize)
+            {
+                stackPtr->stackTop = (stackPtr->stackTop > newSize) ? newSize : stackPtr->stackTop;
+            }
+            else
+            {
+            }
+            stackPtr->stackSize = newSize;
+            stackPtr->Stackdata = realloc(stackPtr->Stackdata, (stackPtr->stackSize) * sizeof(void **));
+            stackCheck(CHK_FOR_REALLOC, stackPtr, NULL, NULL);
+            if (stackStatus.stackReadyFlag == TRUE)
+            {
+                stackStatus.stackReallocFlag = TRUE;
+            }
+            else
+            {
+                /*For debugging*/
+            }
+        }
+    }
+}
+
+void stackEmpty(stack_t *stackPtr)
+{
+    stackCheck(CHK_FOR_NULL, stackPtr, NULL, NULL);
+    if (stackStatus.stackReadyFlag == TRUE)
+    {
+        stackPtr->stackTop = ZERO_ELEMENTS;
+        stackStatus.emptyStackFlag = TRUE;
     }
     else
     {
-        /*For debugging*/
+    }
+}
+
+void stackPrint(stack_t *stackPtr)
+{
+    stackCheck(CHK_FOR_NULL,stackPtr,NULL,NULL);
+    if(stackStatus.stackReadyFlag == TRUE)
+    {
+        
     }
 }
